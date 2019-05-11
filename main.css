@@ -1,0 +1,151 @@
+#stage {
+    margin: 110px auto;
+    width: 600px;
+    height: 400px;
+    perspective: 800px;
+}
+
+#rotate {
+    margin: 0 auto;
+    width: 600px;
+    height: 400px;
+    transform-style: preserve-3d;
+}
+
+.ring {
+    margin: 0 auto;
+    height: 110px;
+    width: 600px;
+    position: absolute;
+}
+
+.poster {
+    /*background: black;*/
+    position: absolute;
+    left: 250px;
+    width: 141px;
+    height: 121px;
+}
+
+.motion-blur {
+    filter: blur(4px);
+}
+
+#ring-0 {
+    margin-left: -200px;
+}
+
+#ring-2 {
+    margin-left: 200px;
+}
+
+.background {
+    position:absolute;
+    top: -85px;
+    left: -19px;
+    width: 697px;
+    height: 229px;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgba(255, 255, 255, .15)), to(rgba(0, 0, 0, .25))), -webkit-gradient(linear, left top, right bottom, color-stop(0, rgba(255, 255, 255, 0)), color-stop(0.5, rgba(255, 255, 255, .1)), color-stop(0.501, rgba(255, 255, 255, 0)), color-stop(1, rgba(255, 255, 255, 0)));
+    background: -moz-linear-gradient(top, rgba(255, 255, 255, .15), rgba(0, 0, 0, .25)), -moz-linear-gradient(left top, rgba(255, 255, 255, 0), rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0));
+    background: linear-gradient(top, rgba(255, 255, 255, .15), rgba(0, 0, 0, .25)), linear-gradient(left top, rgba(255, 255, 255, 0), rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, 0) 50%, rgba(255, 255, 255, 0));
+
+}
+
+.hover {
+    position: absolute;
+    border: 100px solid white;
+    width: 869px;
+    height: 415px;
+    top: -177px;
+    left: -109px;
+    z-index: 1;
+    border-radius: 110px;
+}
+
+.hover::after {
+    content: " ";
+    position: absolute;
+    border: 20px solid gray;
+    width: 709px;
+    height: 255px;
+    top: -20px;
+    left: -20px;
+    border-radius: 40px;
+}
+
+.separators {
+    position: absolute;
+    top:-70px;
+    left: 194px;
+    /*background: #9E9E9E;*/
+    height: 200px;
+    width: 22px;
+}
+
+.separators > div {
+    width: 22px;
+    height: 4px;
+    background: #607D8B;
+    margin: 48px auto;
+    border-radius: 2px;
+
+}
+
+.cross-lines {
+    position: absolute;
+    top: -70px;
+    /*left: 0px;*/
+    /*background: #9E9E9E;*/
+    height: 200px;
+    width: 650px;
+}
+
+.cross-lines > div {
+    width: 100%;
+    height: 4px;
+    background: #ef5350;
+    margin: 48px auto;
+    border-radius: 2px;
+}
+
+
+#pay-table {
+    /*position:relative;*/
+    /*top:-230px;*/
+    /*width: 650px;*/
+    font-size: 14px;
+}
+
+.pay-item {
+    margin:2px;
+    background-color:antiquewhite;
+    border-radius:4px;
+}
+
+.pay-item > .amount {
+    float:right;
+    padding-right: 10px;
+}
+
+.pay-item > .text {
+    padding-left: 10px;
+}
+
+.pay-item.active > span {
+    color: red;
+    font-weight: bold;
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink{
+    0%{opacity: 0.2;}
+    50%{opacity: 1;}
+    100%{opacity: 0.2;}
+}
+
+.main-section {
+    position: relative;
+    top:-230px;
+    z-index:2;
+    width:650px;
+}
