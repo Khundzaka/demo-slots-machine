@@ -45,8 +45,6 @@ let Ring = function ($parent, number) {
 Ring.prototype.createFace = function (index) {
     let currentFaceId = 'face' + this.id + '-' + index;
     let degree = index * 47 - 47 - 23;
-    console.log((5 - index) % 5);
-    console.log(index);
     let img = $('<img class="img-responsive" src="" alt="">').attr('src', "img/" + this.images[(5 - index) % 5]),
         div = $('<div class="poster" >').attr('id', currentFaceId)
             .css({transform: 'rotateX(' + (degree) + 'deg) translateZ(140px)'});
@@ -69,7 +67,6 @@ Ring.prototype.spin = function (speed, duration, stopPos, stopFace, callback) {
             face.deg = (face.deg + speed) % 360;
             if (face.deg > 60) {
                 _this.middle = (3 + index - 2) % 3;
-                // console.log("hey");
                 face.deg -= 3 * 47;
                 face.imgIndex = (face.imgIndex + 3) % 5;
                 face.el.children(":first").attr("src", "img/" + _this.images[face.imgIndex]);
@@ -247,7 +244,6 @@ Slots.prototype.clearPositionLines = function () {
 $(document).ready(function () {
 
     $("#balance-input").on("input", function () {
-        console.log("a");
         let max = parseInt($(this).attr('max'));
         let min = parseInt($(this).attr('min'));
         if ($(this).val() > max) {
@@ -286,7 +282,6 @@ $(document).ready(function () {
                     face: parseInt($("#symbol-" + (ind + 1)).val()),
                     position: parseInt($("#pos-" + (ind + 1)).val())
                 };
-                console.log(position);
                 slots.currentPositions.push(position);
                 ring.spin(16, 2000 + 500 * ind, position.position, position.face, spinCallback);
             });
@@ -302,7 +297,6 @@ $(document).ready(function () {
             callTimes++;
             if (callTimes === 3) {
                 let wins = slots.calculateWinningCombinations();
-                console.log(wins);
                 wins.forEach(function (win) {
                     slots.crossPositionLine(win.line);
                     payTable.blinkOne(win.combo.id);
