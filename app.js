@@ -11,7 +11,6 @@
  * M - Middle
  * B - Bottom
  */
-
 let winCombos = [
     {id: 'CCCT', text: '3 CHERRY symbols on top line', win: 2000, symbols: 'C', lines: 'T'},
     {id: 'CCCC', text: '3 CHERRY symbols on center line', win: 1000, symbols: 'C', lines: 'M'},
@@ -42,10 +41,16 @@ let Ring = function ($parent, number) {
     }
     this.middle = 1;
 };
+
+/**
+ * created reel face with initial symbol
+ * @param index
+ */
 Ring.prototype.createFace = function (index) {
     let currentFaceId = 'face' + this.id + '-' + index;
     let degree = index * 47 - 47 - 23;
-    let img = $('<img class="img-responsive" src="" alt="">').attr('src', "img/" + this.images[(5 - index) % 5]),
+    let img = $('<img class="img-responsive" src="" alt="">')
+            .attr('src', "img/" + this.images[(5 - index) % 5]),
         div = $('<div class="poster" >').attr('id', currentFaceId)
             .css({transform: 'rotateX(' + (degree) + 'deg) translateZ(140px)'});
     div.append(img);
@@ -54,6 +59,15 @@ Ring.prototype.createFace = function (index) {
     this.el.append(div);
     this.faces.push({el: $('#' + currentFaceId), deg: degree, imgIndex: (5 - index) % 5, facePos: index});
 };
+
+/**
+ * animates spinning of reel using given parameters and triggers callback when finishes
+ * @param speed
+ * @param duration
+ * @param stopPos
+ * @param stopFace
+ * @param callback
+ */
 Ring.prototype.spin = function (speed, duration, stopPos, stopFace, callback) {
 
     let stopPositions = [-24, -47, -70];
@@ -82,7 +96,7 @@ Ring.prototype.spin = function (speed, duration, stopPos, stopFace, callback) {
 
         if (faceMatch && timeMatch) {
             [-1, 0, 1].forEach(function (el, ind) {
-                let virtualPos = (3 + _this.middle + el) % 3;
+                let virtualPos = (3 + _this.middle + el) % 3; // actual position in array based on real position
                 _this.faces[virtualPos].deg = stopPositions[stopPos] + ind * 47;
                 _this.faces[virtualPos].el.css("transform", "rotateX(" + _this.faces[virtualPos].deg + "deg) translateZ(140px)");
 
@@ -90,7 +104,7 @@ Ring.prototype.spin = function (speed, duration, stopPos, stopFace, callback) {
             _this.el.children().removeClass('motion-blur');
             callback();
         } else {
-            requestAnimationFrame(innerLoop);
+            requestAnimationFrame(innerLoop); // for optimal framerate
         }
     }
 
@@ -111,39 +125,111 @@ let PayTable = function () {
         _this.selector.append($payItem);
     });
 };
-
+/**
+ * helper for applying blink on one item
+ * @param winId
+ */
 PayTable.prototype.blinkOne = function (winId) {
     $('#win-' + winId).addClass('active');
 };
 
-PayTable.prototype.clearBlink = function (winId) {
+/**
+ * helper for clearing blink efect
+ */
+PayTable.prototype.clearBlink = function () {
     $('.pay-item').removeClass('active');
 };
 
+/**
+ * Starting point for the game
+ * @constructor
+ */
 let Slots = function () {
     this.balance = 20;
     this.$balance = $('#balance');
     this.$spin = $('#spin');
+    this.$setBalance = $('#set-balance');
     this.$balanceInput = $('#balance-input');
+    this.$rotate = $('#rotate');
     this.currentPositions = [];
+    this.control = [];
+    let payTable = new PayTable();
 
     let _this = this;
 
-    $("#set-balance").on('click', function () {
+    this.$setBalance.on('click', function () {
         _this.setBalance(parseInt(_this.$balanceInput.val()));
+    });
+
+
+    for (let i = 0; i < 3; i++) {
+        let currentRing = new Ring(this.$rotate, i);
+        this.control.push(currentRing);
+    }
+
+    this.$spin.on("click", function () {
+        _this.$setBalance.prop("disabled", true);
+        _this.clearPositionLines();
+        payTable.clearBlink();
+        _this.deductFromBalance(1);
+        _this.$spin.prop("disabled", true);
+
+        _this.currentPositions = [];
+        let $debug = $("#debug");
+        let callTimes = 0;
+
+
+        if ($debug.is(":checked")) {
+            _this.control.forEach(function (ring, ind) {
+                let position = {
+                    face: parseInt($("#symbol-" + (ind + 1)).val()),
+                    position: parseInt($("#pos-" + (ind + 1)).val())
+                };
+                _this.currentPositions.push(position);
+                ring.spin(16, 2000 + 500 * ind, position.position, position.face, spinCallback);
+            });
+        } else {
+            _this.control.forEach(function (ring, ind) {
+                let position = _this.generatePosition();
+                _this.currentPositions.push(position);
+                ring.spin(16, 2000 + 500 * ind, position.position, position.face, spinCallback);
+            });
+        }
+
+        function spinCallback() {
+            callTimes++;
+            if (callTimes === 3) {
+                let wins = _this.calculateWinningCombinations();
+                wins.forEach(function (win) {
+                    _this.crossPositionLine(win.line);
+                    payTable.blinkOne(win.combo.id);
+                });
+                let win = _this.countWinningSum(wins);
+                _this.addToBalance(win);
+                _this.$setBalance.prop("disabled", false);
+            }
+        }
     });
 
 };
 
-Slots.prototype.faceSymbols = ["3", "B", "2", "7", "C"];
-Slots.prototype.lineSymbols = ["T", "M", "B"];
+Slots.prototype.faceSymbols = ["3", "B", "2", "7", "C"]; //for converting indexes into symbols
+Slots.prototype.lineSymbols = ["T", "M", "B"]; // for converting indexes into line symbols
 
+/**
+ * Generates random position for single reel
+ * @returns {{face: number, position: number}}
+ */
 Slots.prototype.generatePosition = function () {
     let positionRandom = Math.floor(3 * Math.random());
     let symbolRandom = Math.floor(5 * Math.random());
     return {face: symbolRandom, position: positionRandom};
 };
 
+/**
+ * returns all winning combinations with corresponding lines
+ * @returns {T[]|*|Array|Array}
+ */
 Slots.prototype.calculateWinningCombinations = function () {
     let middleCount = 0;
     for (let i = 0; i < this.currentPositions.length; i++) {
@@ -151,24 +237,34 @@ Slots.prototype.calculateWinningCombinations = function () {
             middleCount++
         }
     }
+    // when middle count isn't equal to 3 or 0, means, that we don't have all of the on same line
     if (middleCount % 3 !== 0) {
         return [];
     }
-    if (middleCount === 0) {
+    if (middleCount === 0) { // this means, we have combination on top and bottom lines.
         return this.checkLineCombination(0)
             .concat(this.checkLineCombination(2));
     }
 
     return this.checkLineCombination(1);
-
 };
 
+/**
+ * calculates total win amount based on winning combinations
+ * @param winningCombinations
+ * @returns {*}
+ */
 Slots.prototype.countWinningSum = function (winningCombinations) {
     return winningCombinations.reduce(function (acc, current) {
         return acc + current.combo.win;
     }, 0);
 };
 
+/**
+ * returns best winning combination for given line
+ * @param line
+ * @returns {{line: *, combo: *}[]|Array}
+ */
 Slots.prototype.checkLineCombination = function (line) {
     let combination = [];
     for (let i = 0; i < this.currentPositions.length; i++) {
@@ -223,26 +319,37 @@ Slots.prototype.setBalance = function (amount) {
     this.resetSpinButtion();
 };
 
-Slots.prototype.resetSpinButtion = function(){
-    if(this.balance > 0){
+/**
+ * helper for manipulating button state (disabled/enabled)
+ */
+Slots.prototype.resetSpinButtion = function () {
+    if (this.balance > 0) {
         $("#spin").prop("disabled", false);
     } else {
         $("#spin").prop("disabled", true);
     }
 };
 
+/**
+ * helper for showing crossing line (appear)
+ * @param line
+ */
 Slots.prototype.crossPositionLine = function (line) {
     let lineNames = ['top', 'middle', 'bottom'];
     $('#cross-' + lineNames[line]).css({opacity: 1});
 };
 
+/**
+ * helper for disappearing all lines
+ */
 Slots.prototype.clearPositionLines = function () {
     $('.cross').css({opacity: 0});
 };
 
-
-$(document).ready(function () {
-
+/**
+ * helper which limits user input strictly under given range
+ */
+function setUpDebugInputs() {
     $("#balance-input").on("input", function () {
         let max = parseInt($(this).attr('max'));
         let min = parseInt($(this).attr('min'));
@@ -252,61 +359,13 @@ $(document).ready(function () {
             $(this).val(min);
         }
     });
-
-    let $rotate = $('#rotate');
-    let payTable = new PayTable();
-    let control = [];
-
-    for (let i = 0; i < 3; i++) {
-        let currentRing = new Ring($rotate, i);
-        control.push(currentRing);
-    }
-
-    let slots = new Slots();
-
-    $("#spin").on("click", function () {
-        $("#set-balance").prop("disabled", true);
-        slots.clearPositionLines();
-        payTable.clearBlink();
-        slots.deductFromBalance(1);
-        $("#spin").prop("disabled", true);
-
-        slots.currentPositions = [];
-        let $debug = $("#debug");
-        let callTimes = 0;
+}
 
 
-        if ($debug.is(":checked")) {
-            control.forEach(function (ring, ind) {
-                let position = {
-                    face: parseInt($("#symbol-" + (ind + 1)).val()),
-                    position: parseInt($("#pos-" + (ind + 1)).val())
-                };
-                slots.currentPositions.push(position);
-                ring.spin(16, 2000 + 500 * ind, position.position, position.face, spinCallback);
-            });
-        } else {
-            control.forEach(function (ring, ind) {
-                let position = slots.generatePosition();
-                slots.currentPositions.push(position);
-                ring.spin(16, 2000 + 500 * ind, position.position, position.face, spinCallback);
-            });
-        }
+$(document).ready(function () {
 
-        function spinCallback() {
-            callTimes++;
-            if (callTimes === 3) {
-                let wins = slots.calculateWinningCombinations();
-                wins.forEach(function (win) {
-                    slots.crossPositionLine(win.line);
-                    payTable.blinkOne(win.combo.id);
-                });
-                let win = slots.countWinningSum(wins);
-                slots.addToBalance(win);
-                $("#set-balance").prop("disabled", false);
-            }
-        }
-    });
+    setUpDebugInputs();
 
+    (new Slots());
 
 });

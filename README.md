@@ -37,6 +37,7 @@ index.html is the main file which can be launched in browser.
 ## Additional details
 
 - Game is designed using given specifications.
+- code contains comments and JSDoc blocks
 - Project is done in given time period, during free time.
 - Project is developed from scratch, without additional libraries (only jQuery for DOM manipulations).
 - Game is created for demonstration purposes only.
