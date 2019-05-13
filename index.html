@@ -8,6 +8,13 @@
     <link href="main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
+<div style="position:absolute; max-width:0; max-height: 0; overflow: hidden;">
+    <img src="img/2xBAR.png" alt="">
+    <img src="img/BAR.png" alt="">
+    <img src="img/3xBAR.png" alt="">
+    <img src="img/7.png" alt="">
+    <img src="img/Cherry.png" alt="">
+</div>
 <div id="stage">
     <div class="background"></div>
     <div class="hover"></div>
@@ -23,22 +30,18 @@
         <div></div>
     </div>
     <div class="cross-lines">
-        <div id="cross-top" class="cross" style="display: none;"></div>
-        <div id="cross-middle" class="cross" style="display: none;"></div>
-        <div id="cross-bottom" class="cross" style="display: none;"></div>
+        <div id="cross-top" class="cross" style="opacity: 0;"></div>
+        <div id="cross-middle" class="cross" style="opacity: 0;"></div>
+        <div id="cross-bottom" class="cross" style="opacity: 0;"></div>
     </div>
     <div class="main-section">
         <div class="row">
             <div class="col-8">
                 <div id="pay-table">
-                    <div class="pay-item active">
-                        <span class="text">2135134</span>
-                        <span class="amount">23452345</span>
-                    </div>
                 </div>
             </div>
             <div class="col-4">
-                <button class="btn btn-outline-danger btn-block btn-lg">SPIN</button>
+                <button id="spin" class="btn btn-outline-danger btn-block btn-lg">SPIN</button>
                 <br>
                 <div class="card">
                     <div class="card-body">
@@ -56,10 +59,10 @@
                 <div class="form-inline">
                     <div class="form-group inline">
                         <label for="balance-input">Balance</label>
-                        <input id="balance-input" min="0" max="5000" type="text" class="form-control form-control-sm"
+                        <input id="balance-input" min="0" max="5000" type="number" class="form-control form-control-sm"
                                value="20">
                     </div>
-                    <button class="btn btn-sm btn-primary">Set</button>
+                    <button id="set-balance" class="btn btn-sm btn-primary">Set</button>
                 </div>
                 <div>
                     <div class="form-check">
